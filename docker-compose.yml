@@ -1,0 +1,61 @@
+version: "1"
+## donot use it now
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+    environment:
+      - ELASTIC_PASSWORD=123change...
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - path.data=/usr/share/elasticsearch/data
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: 1g
+    volumes:
+      - /data/elasticsearch-6.6.1/data:/usr/share/elasticsearch/data
+  nlp:
+    image: nlp:latest
+    build:
+      context: .
+      dockerfile: docker/nlp.Dockerfile
+    networks:
+      - demo_network
+  template-classification:
+    image: template-classification:latest
+    build:
+      context: .
+      dockerfile: docker/tc.Dockerfile
+    networks:
+      - demo_network
+  entity-linking:
+    image: entity-linking:latest
+    build:
+      context: .
+      dockerfile: docker/el.Dockerfile
+    networks:
+      - demo_network
+  query-ranking:
+    image: query-ranking:latest
+    build:
+      context: .
+      dockerfile: docker/qr.Dockerfile
+    networks:
+      - demo_network
+  tebaqa-controller:
+    image: tebaqa-controller:latest
+    build:
+      context: .
+      dockerfile: docker/controller.Dockerfile
+    networks:
+      - demo_network
+
+networks:
+    demo_network:
+      external: true
